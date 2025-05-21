@@ -128,7 +128,7 @@ frenquence(phrase)
 const phrase2 = `Listen to the silent notes.     Enlist your time well.     The stone is not silent, it's a tone.     Tones and notes are often one.     Listen and enlist, again and again.`;
 
 function anagramSolver(phrase){
-    const ignored = [',', '?', '!', '.', ';', "'", ':', '"', " "];
+    const ignored = [',', '?', '!', '.', ';', "'", ':', '"'];
 
     let cleanPhrase = phrase.toLowerCase()
     for(let charater of ignored){
@@ -162,55 +162,3 @@ function anagramSolver(phrase){
 }
 
 anagramSolver(phrase2)
-
-
-//Find most common letter 
-
-/* Clean the sentence:
-
-    Remove spaces and punctuation (e.g., !, ., ,, etc.).
-
-    Convert all letters to lowercase.
-
-Loop through the characters.
-
-Track each letter’s frequency using an object or a Map.
-
-Find the letter with the highest count.*/
-
-const sentence = "Hello there! How are you doing today?";
-
-function mostCommonLetter(phrase){
-
-    const ignored = [',', '?', '!', '.', ';', "'", ':', ' '];
-    let cleanPhrase = phrase.toLowerCase()
-
-    for(let charracter of ignored){
-        cleanPhrase = cleanPhrase.replaceAll(charracter, "")
-    }
-
-    const letterMap = new Map();
-
-    for(let letter of cleanPhrase){
-        if(letterMap.has(letter)){
-            letterMap.set(letter, letterMap.get(letter) + 1);
-        }else{
-            letterMap.set(letter, 1)
-        }
-    }
-    let maxCount = 0;
-    let mostCommon = '';
-
-    for (let [char, count] of letterMap.entries()) {
-        if (count > maxCount) {
-            maxCount = count;
-            mostCommon = char;
-        }
-    }
-    console.log(letterMap)
-    console.log(maxCount)
-    console.log(mostCommon)
-
-}
-
-mostCommonLetter(sentence)
