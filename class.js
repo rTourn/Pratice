@@ -1,74 +1,64 @@
-class Library{
-    constructor(name){
-        this.name = name;
-        this.book = [];
-        this.member =[];
-    }
-
-    
-}
 
 class Book{
-    
-    constructor(title, author){
-        this.title = title;
+    constructor(id , name, author){
+        this.id = id;
+        this.name = name;
         this.author = author;
         this.available = true;
-        this.id = null;
     }
 
     displayInfo(){
-        console.log(`${this.title}, ${this.author}, le livre est dispo : ${this.available}, ID : ${this.id},`)
+        return console.log( this.name, this.author, this.id)
     }
 
-    borrow(){   
-        if(this.available === true){
-            this.available = false
-            return true
-        }else{
+    borrow(){
+        if(!this.available == true){
             return false
+        }else{
+            this.available = false;
+            return true
         }
     }
+
     returnBook(){
         this.available = true;
-        return 
-
+        return
     }
+
 }
 
 class Member{
-    constructor(name){
+    constructor(id, name){
+        this.id = id;
         this.name = name;
-        this.id = ID;
-        this.borrowedBooks =[];
-        this.maxBooksAllowed = 2;
-    }
-
-    get borrowDuration(){
-        return 14;
+        this.borrowedBook = [];
     }
 
     borrowBook(book){
-        if(this.borrowedBooks.length >= this.maxBooksAllowed){
-            return console.log(`You can't take more book, You have already have ${this.borrowedBooks.length} and your limits is ${this.maxBooksAllowed}`)
-        }
         if(book.borrow()){
-            this.borrowBook.push(book)
-            return console.log(`You have sucefully borrowed this book : ${book.title}`)
+            this.borrowedBook.push(book)
+            console.log(`You have succefuly borrowed this book: ${book.title}`)
         }else{
-            return console.log(`This book : ${book.title} is already borrowed`)
+            console.log(`This book: ${book.title} is already borrowed`)
         }
     }
 
     returnBook(book){
-        const index = this.borrowedBooks.indexOf(book)
+        index = this.borrowedBook.indexOf(book);
+
         if(index > -1){
-            this.borrowedBooks.splice(index, 1)
+            this.borrowedBook.slice(index, 1);
             book.returnBook();
-            return console.log(`${this.name} returned "${book.title}" successfully.`);
+            return console.log(`You have succefuly return the book ${book.title}`)
         }else{
-            console.log(`You don't have "${book.title}"`);
+            return console.log(`You don't have this book ${book.title} in you possesion`)
         }
-        
+    }
+}
+
+class Library{
+    constructor(){
+        this.books =[];
+        this.Member = [];
     }
 }
