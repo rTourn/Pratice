@@ -2,22 +2,23 @@ const data = ['kayak', 'SOS', 'Kayak', 'Bonjour'];
 //check if it is a plaimdrom
 
 function isPalindrome(data){
-   const reverseWord = data.toLowerCase().split("").reverse("").join("");
-   const IS_Not = data.toLowerCase() === reverseWord
-   let answer  ;
-   if(IS_Not === true){
-      answer = "is";
+   const reverseWord = data.toLowerCase().split("").reverse().join("")
+   const ifTrue = data.toLowerCase() === reverseWord
+   let answer ;
+   if(ifTrue){
+     answer = "is"
    }else{
-    answer = "is not"
+     answer = "is not"
    }
    
-   return console.log(`This word: ${data} ${answer} a palindrome` )
+   return console.log(`This word: ${data} ${answer} a palindrome`)
 }
 
 for(let word of data){
     isPalindrome(word)
-   
 }
+
+
 
 const students = [
     {
@@ -45,12 +46,12 @@ const students = [
 //add moyenne 
 
 function addMoyenne(classe){
-    for(let student of classe){
-        const sumStudent = student.notes.reduce((acc, val) => acc + val, 0);
-        const moyenne = sumStudent / student.notes.length
-        student.moyenne = moyenne
-    }
-    console.log(classe)
+   for(let student of classe){
+    const sum = student.notes.reduce((acc,val) => acc + val, 0)
+    const moyenne = sum / student.notes.length
+    student.moyenne = moyenne
+   }
+   console.log(classe)
 }
 
 addMoyenne(students)
@@ -58,9 +59,14 @@ addMoyenne(students)
 // moyenne G 
 
 function moyenneG(classe){
-    const arrayMoyenneStudent = Object.values(classe).map((student) => student.moyenne)
-    const sumMoyenneG= arrayMoyenneStudent.reduce((acc,val) => acc + val,0);
-    return console.log(sumMoyenneG / classe.length)
+    const sumG = Object.values(classe)
+    console.log(sumG)
+    let arrayNotes = sumG.map((student) => student.moyenne)
+    console.log(arrayNotes)
+    arrayNotes = arrayNotes.reduce((acc,val)=> acc + val, 0)
+    console.log(arrayNotes)
+    const moyenneG = arrayNotes / sumG.length
+    console.log(moyenneG)
 }
 
 moyenneG(students)
@@ -70,10 +76,9 @@ moyenneG(students)
 
 function top3(classe){
     const sorted = classe.sort((a,b) => b.moyenne - a.moyenne)
-    return console.log(`
-    ${classe[0].name} ${classe[0].moyenne}
-    ${classe[1].name} ${classe[1].moyenne}
-    ${classe[2].name} ${classe[2].moyenne}`)
+    console.log(`${sorted[0].name} & ${sorted[0].moyenne}
+        ${sorted[1].name} & ${sorted[1].moyenne}
+        ${sorted[2].name} & ${sorted[2].moyenne}`)
 }
 
 top3(students)
@@ -83,30 +88,31 @@ const phrase = ` Voici Joyce Wischnia, alias l'alésoir.translation: Phyllis, th
 //First need to clean the sentense
 
 function frenquence(phrase){
-    let wordMap = []
+    const wordMap = []
     const ignored = [',', '?', '!', '.', ';', "'", ':', '"'];
     let cleanPhrase = phrase.toLowerCase()
 
     for(let character of ignored){
-        cleanPhrase = cleanPhrase.replaceAll(character,"")
+        cleanPhrase = cleanPhrase.replaceAll(character, "")
     }
-    console.log(cleanPhrase)
 
-    cleanPhrase = cleanPhrase.split(" ")
+    cleanPhrase = cleanPhrase.split(" ");
 
     for(let word1 of cleanPhrase){
-        if (word1.length > 2) {
-        const existing = wordMap.find(item => item.word === word1);
-            if (existing) {
-                existing.count += 1; 
-            } else {
-                wordMap.push({ word: word1, count: 1 });
-            }}
+        if(word1.length > 2){
+            existing = wordMap.find(item => item.word === word1)
+                if(existing){
+                    existing.count +=1
+                }else{
+                    wordMap.push({ word: word1, count: 1})
+                }
+        }
     }
     console.log(wordMap)
 
-    wordMap.sort((a,b) => b.count - a.count)
-    console.log(wordMap)
+    const sorted = wordMap.sort((a,b)=> b.count - a.count)
+
+    console.log(sorted)
 }
 
 frenquence(phrase)
@@ -129,35 +135,35 @@ const phrase2 = `Listen to the silent notes.     Enlist your time well.     The 
 
 function anagramSolver(phrase){
     const ignored = [',', '?', '!', '.', ';', "'", ':', '"'];
-
     let cleanPhrase = phrase.toLowerCase()
-    for(let charater of ignored){
-        cleanPhrase = cleanPhrase.replaceAll(charater, "")
+
+    for(let character of ignored){
+        cleanPhrase = cleanPhrase.replaceAll(character, "")
     }
+    cleanPhrase = cleanPhrase.split(" ");
 
-    cleanPhrase = cleanPhrase.split(" ")
-    console.log(cleanPhrase)
-
-    const array = new Map()
+    const arrayMap = new Map()
 
     for(let word of cleanPhrase){
-        const key = word.split('').sort().join('');
-        console.log(key)
-        if(array.has(key)){
-            const entry = array.get(key);
-            entry.count +=1;
-            if (!entry.words.includes(word)){
-                entry.words.push(word); 
+        const key = word.toLowerCase().split("").sort().join("")
+
+        if(arrayMap.has(key)){
+            const entry = arrayMap.get(key)
+            entry.count +=1
+            if(!entry.words.includes(word)){
+                entry.words.push(word)
             }
         }else{
-            array.set(key, { words: [word], count: 1});
+            arrayMap.set(key, {words: [word], count: 1 })
         }
     }
-    console.log(array)
-    const result = Array.from(array.values());
+
+    console.log(arrayMap)
+    const result = Array.from(arrayMap.values());
     console.log(result)
-    result.sort((a,b)=> b.count -a.count)
-    console.log(result)
+    const sorted = result.sort((a,b)=> b.count -a.count)
+    console.log(sorted)
+
 
 }
 
