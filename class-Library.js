@@ -1,10 +1,23 @@
+let previouslyId = [];
+
+function generateId(){
+    let data = Date.now().toString(36) + Math.random().toString(36).substring(2,5);
+
+    while(previouslyId.includes(data)){
+        data = Date.now().toString(36) + Math.random().toString(36).substring(2,5);
+    }
+    
+    previouslyId.push(data)
+    return data
+}
+
+
 
 class Book{
 
-    static nextId = 1;
 
     constructor(name, author){
-        this.id = Book.nextId++;
+        this.id = generateId();
         this.name = name;
         this.author = author;
         this.available = true;
@@ -53,10 +66,9 @@ class Book{
 }
 
 class Member{
-    static nextId = 1;
 
     constructor(name){
-        this.id = Member.nextId++;
+        this.id = generateId();
         this.name = name;
         this.creationCompte = new Date().toLocaleDateString()
         this.borrowedBook = new Map();
@@ -184,6 +196,18 @@ class Library{
         console.log("Member not found");
         }
             }
+
+    searchBooks(query) {
+        const result = this.books.filter(book =>
+            book.name.toLowerCase().includes(query.toLowerCase()) ||
+            book.author.toLowerCase().includes(query.toLowerCase())
+        );
+        if (result.length > 0) {
+        console.table(result);
+        } else {
+        console.log("No books found.");
+        }
+    }
 }
 
 // Create a new library
