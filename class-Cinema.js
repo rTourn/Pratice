@@ -146,11 +146,21 @@ class Customer{
     }
 
     cancelReservation(movie, time){
+        if(!this.reservations.has(movie.id)){
+            console.log(`You don't have any reversation for ${movie.title}`)
+            return
+        }
+
+        const info = this.reservations.get()
+
+        if(!this.reservations.has(time)){
+            
+        }
 
     }
 
     listMyReservations(){
-        
+
     }
 
 }
