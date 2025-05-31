@@ -46,6 +46,7 @@ class Cinema{
 
         if(index === -1){
             this.customers.push(member)
+            this.member.cinema = this.name;
             console.log(`You added this member: ${member.name} to the cinema : ${this.name}`)
         }else{
             console.log(`This member: ${member.name} is already registered`)
@@ -56,6 +57,7 @@ class Cinema{
         const index = this.customers.indexOf(member);
 
         if(index > -1){
+            this.member.cinema = undefined;
             this.customers.splice(index, 1)
             console.log(`You have removed this member: ${member.name} from this cinema : ${this.name}`)
         }else{
@@ -120,68 +122,73 @@ class Cinema{
 }
 
 class Movie{
-    constructor(title, duration, maxCapacity){
+    constructor(title, duration){
         this.id = generateId()
         this.title = title;
         this.duration = duration;
-        this.showtimes = [];
-        this.maxCapacity = maxCapacity;
-        this.reservedPlace= 0;
-        this.reservations = new Map();
+        this.showtimes = new Map(); // key: time, value: { capacity, reservation };
+        
     }
 
-    addShowtime(time){
-        this.showtimes.push(time);
+    addShowtime(time,capacity){
+        this.showtimes.set(time, {capacity, reservation: new Map()})
     }
 
     listShowTimes(){
-        console.log(this.showtimes)
+        
     }
 
     reserveSeat(customer, time){
-
-        if(this.reservedPlace > this.maxCapacity){
-            console.log(`This movie: ${this.title} is already all booked`);
-            return false;
-        }
 
         if (!this.showtimes.includes(time)) {
             console.log(`This time: ${time} is not available for this movie: ${this.title}`);
             return false;
         }
 
-        if (this.reservations.has(customer.id)) {
+        const info = this.showtimes.get(time);
+
+        if(info.capacity === info.reservation.length){
+            console.log(`This movie: ${this.title} is already all booked`);
+            return false;
+        }
+
+        if (info.reservation.includes(customer.id)) {
             console.log(`${customer.name} has already reserved a seat.`);
             return false;
         }
 
-        this.reservations.set(customer.id, { customer, time });
-        this.reservedPlace +=1;
+        info.reservation.set(customer.id, { customer });
+        
         console.log(`${customer.name} reserved a seat for "${this.title}" at ${time}`);
         return true;
     }
 
-    cancelReservation(customer){
-
-        if(this.reservations.has(customer.id)){
-             this.reservations.delete(customer.id)
-             this.reservedPlace -=1;
-             console.log(`${customer.name}'s reservation has been cancelled.`)
-            return true;
-        }else{
-            console.log(`No reservation found for ${customer.name}`)
+    cancelReservation(customer, time){
+        if (!this.showtimes.includes(time)) {
+            console.log(`This time: ${time} is not available for this movie: ${this.title}`);
             return false;
         }
+
+        const info = this.showtimes.get(time);
+
+        if (!info.reservation.includes(customer.id)) {
+            console.log(`${customer.name} hasn't reserved a seat for this movie: ${this.title} and this time: ${time}.`);
+            return false;
+        }
+
+        info.reservation.delete(customer.id)
+        console.log(`${customer.name}'s reservation has been cancelled.`)
+        return true;
+        
     }
 
-    listReservations(){
-        const reservationList = Array.from(this.reservations.entries()).map(([id, info])=> ({
-                Id: id,
-                Name: info.customer.name,
-                showtime: info.time
+    listReservations(time){
+        const info = this.showtimes.get(time);
+        const reservationList = Array.from(info.reservation.entries()).map(([capacity, reservation])=> ({
+                Name: reservation.customer.name,
             }))
         
-        console.log(`Reservations for ${this.title}`)
+        console.log(`Reservations for ${this.title} and time ${time}`)
         console.table(reservationList)
         
     
@@ -193,23 +200,29 @@ class Customer{
         this.id = generateId()
         this.name = name;
         this.reservations = new Map();
+        this.cinema = undefined;
     }
 
     makeReservation(movie, time){
+        if(!this.cinema.hasMovie(movie)){
+            console.log(`Movie not found in this cinema.`)
+            return 
+        }
+
         if(movie.reserveSeat(this, time)){
              this.reservations.set(movie.id, { movie, time });
              console.table(this.getMyReservation())
         }
     }
 
-    cancelReservation(movie, cinema){
+    cancelReservation(movie, time){
 
-        if(!cinema.hasMovie(movie)){
+        if(!this.cinema.hasMovie(movie)){
             console.log(`Movie not found in this cinema.`)
             return 
         }
 
-        if(movie.cancelReservation(this)){
+        if(movie.cancelReservation(this, time)){
             this.reservations.delete(movie.id);
             console.table(this.getMyReservation())
         }
