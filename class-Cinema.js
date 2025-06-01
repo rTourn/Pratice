@@ -17,8 +17,32 @@ class Cinema{
         this.name = name;
         this.movies = [];
         this.customers = []
+        this.room1 = undefined;
+        this.room2 = undefined;
+        this.room3 = undefined;
     }
-
+    setRoom(number, numberOfRow, seatperRow){
+        switch(number){
+            case 1: 
+                this.room1 = undefined;
+                let rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                const layout = [];
+                rows = rows.splice(numberOfRow, 26)
+                for (let row of rows){
+                    for(let i =1; i <= seatperRow; i++){
+                        layout.push(`${row}${i}`)
+                    }
+                }
+                return layout
+                break;
+            case 2:
+                
+                break;
+            case 3:
+                
+                break;
+        }
+    }
     addMovie(movie){
         const index = this.movies.indexOf(movie);
 
@@ -65,7 +89,7 @@ class Cinema{
         }
     }
 
-    registeredCustomer(){
+    listCustomer(){
         const customerList = this.customers.map(customer=> ({
                 Name: customer.name,
                 ID: customer.id,
@@ -82,20 +106,11 @@ class Cinema{
             Duration: movie.duration,
             ID: movie.id
         }))
-
+        console.log(`Movies availables`)
         console.table(movieList)
 
     }
 
-    listCustomers(){
-        const customersList = this.customers.map(customer=> ({
-            Name: customer.name,
-            ID: customer.id,
-        }))
-
-        console.table(customersList)
-
-    }
 
     findMovieByTitle(title){
         const result = this.movies.filter(movie => movie.title.toLowerCase().includes(title.toLowerCase()));
@@ -105,6 +120,10 @@ class Cinema{
         }else{
             console.log(`This ${title} doesn't exist in this cinema`)
         }
+    }
+
+    findMovieByTime(time){
+        return this.movies.filter(movie=> movie.showtime.includes(time))
     }
 
     showReservations(movie){
@@ -131,11 +150,16 @@ class Movie{
     }
 
     addShowtime(time,capacity){
-        this.showtimes.set(time, {capacity, reservation: new Map()})
+        this.showtimes.set(time, {capacity, reservation: new Map(), seatingChart})
     }
 
     listShowTimes(){
-        
+        const listShowTimes = Array.from(this.showtimes.entries()).map(([time,info]) => ({
+            ShowTimes: time
+        }))
+
+        console.log(`Times availables for this movie: ${this.title}`)
+        console.log(listShowTimes)
     }
 
     reserveSeat(customer, time){
@@ -186,6 +210,7 @@ class Movie{
         const info = this.showtimes.get(time);
         const reservationList = Array.from(info.reservation.entries()).map(([capacity, reservation])=> ({
                 Name: reservation.customer.name,
+                ID: reservation.customer.id
             }))
         
         console.log(`Reservations for ${this.title} and time ${time}`)
