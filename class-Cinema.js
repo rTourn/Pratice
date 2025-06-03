@@ -17,37 +17,77 @@ class Cinema{
         this.name = name;
         this.movies = [];
         this.customers = []
-        this.room1 = undefined;
-        this.room2 = undefined;
-        this.room3 = undefined;
+        this.rooms = {}; // dynamic storage for room layouts
     }
-    setRoom(number, numberOfRow, seatperRow){
-        switch(number){
-            case 1: 
-                this.room1 = undefined;
-                let rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-                const layout = [];
-                rows = rows.splice(numberOfRow, 26)
-                for (let row of rows){
-                    for(let i =1; i <= seatperRow; i++){
-                        layout.push(`${row}${i}`)
-                    }
-                }
-                return layout
-                break;
-            case 2:
-                
-                break;
-            case 3:
-                
-                break;
+    setRoom(roomNumber, numberOfRow, seatPerRow){
+        
+        if(this.rooms[`room${roomNumber}`]){
+            console.log(`This room${roomNumber} is already set`)
+            return
         }
+
+        const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').splice(0,numberOfRow);
+        const layout= [];
+
+        for(let row of rows){
+
+            for(let i = 0; i<= seatPerRow; i++){
+                layout.push(`${row}${i}`);
+            }
+        }
+
+        this.rooms[`room${roomNumber}`] = layout;
+        console.log(`Room${roomNumber} configured with ${numberOfRow} rows and ${seatPerRow} seats per row.`)
+             
     }
+
+    modifyRoom(roomNumber, numberOfRow, seatPerRow){
+        if(!this.rooms[`room${roomNumber}`]){
+            console.log(`This room${roomNumber} does not exist. You need to use the function setRoom`)
+        }
+
+        delete this.rooms[`room${roomNumber}`]  // erase the previous setting
+
+        this.setRoom(roomNumber, numberOfRow, seatPerRow)
+
+    }
+
+    listSeatPerRoom(roomNumber){
+        const room = this.rooms[`room${roomNumber}`]
+
+        if(!room){
+            console.log(`This room${roomNumber} doesn't exist`)
+            return
+        }
+
+        console.log(`Layout of room${roomNumber}`)
+        console.log(room);
+    }
+    listRooms(){
+        const roomKeys = Object.keys(this.rooms)
+
+        if (roomKeys.length === 0) {
+        console.log("No rooms available.");
+        return;
+    }
+        console.log(`Rooms available`)
+        roomKeys.forEach(room => {
+            console.log(`- ${room}`)
+        })
+        return roomKeys;
+    }
+
+    getRoomLayout(roomName){
+         const key = typeof roomName === "string" ? roomName : `room${roomName}`;
+         return this.rooms[key] || null;
+    }
+
     addMovie(movie){
         const index = this.movies.indexOf(movie);
 
         if(index === -1){
             this.movies.push(movie)
+            movie.cinema = this;
             console.log(`You added this movie: ${movie.title} to the cinema : ${this.name}`)
         }else{
             console.log(`This movie: ${movie.title} is already in stock`)
@@ -58,6 +98,7 @@ class Cinema{
         const index = this.movies.indexOf(movie);
 
         if(index > -1){
+            movie.cinema = undefined;
             this.movies.splice(index, 1)
             console.log(`You have removed this movie: ${movie.title} from the stock of this cinema : ${this.name}`)
         }else{
@@ -145,14 +186,74 @@ class Movie{
         this.id = generateId()
         this.title = title;
         this.duration = duration;
-        this.showtimes = new Map(); // key: time, value: { capacity, reservation };
+        this.showings = []; // {time, roomName}
+        this.seatingCharts = new Map() // Key: `${roomName}_${time}`, Value: { layout: [], reserved: Map(seat => customer) }
+        this.cinema = undefined;
         
     }
 
-    addShowtime(time,capacity){
-        this.showtimes.set(time, {capacity, reservation: new Map(), seatingChart})
+
+    addShowtime(roomName, time){ // room1, 18h00
+        const key = `${roomName}_${time}`;
+        const layout = this.cinema.getRoomLayout(roomName) 
+        if(this.seatingCharts.has(key)){
+            console.log(`This showtime ${time} is already available`)
+            return
+        }
+
+        this.showings.push({roomName, time})
+        this.seatingCharts.set(key, {
+            layout: [...layout], // copy of seat layout (e.g., ['A1', 'A2'...])
+            reserved: new Map()  // seatId => Customer
+        })
+
+        console.log(`Added showtime for ${this.title} in ${roomName} at ${time}`);
     }
 
+    removeShowTime(roomName, time){ // room1, 18h00
+        const key = `${roomName}_${time}`;
+        if(!this.seatingCharts.has(key)){
+            console.log(`This showtime ${time} isn't available`)
+            return
+        }
+        const index = this.showings.findIndex(show => show.roomName === roomName && show.time === time)
+
+        if (index === -1) {
+        console.warn(`Showtime not found in the showings array, but exists in seatingCharts. Check data integrity.`);
+}
+        if(index > -1){
+            this.showings.splice(index, 1)
+        }
+        
+        this.seatingCharts.delete(key)
+        console.log(`Removed showtime for ${this.title} in ${roomName} at ${time}`);
+    }
+
+     reserveSeat(customer, roomName, time, seatId){ // customer / room1 / 18h00 / A1
+        const key = `${roomName}_${time}`;
+
+        if(!this.seatingCharts.has(key)){
+            console.log(`No showtime at ${time} and in this ${roomName}`)
+            return false;
+        }
+
+        const chart = this.seatingCharts.get(key)
+
+        if(!chart.layout.includes(seatId)){
+            console.log(`No seat ${seatId} for this showtime ${time} and ${roomName}`)
+            return false;
+        }
+
+        if(chart.reserved.has(seatId)){
+            console.log(`This seat ${seatId} is already reserved for this showtime ${time} and ${roomName}`)
+            return false;
+        }
+
+        chart.reserved.set(seatId, customer)
+        console.log(`You have reserved this seat${seatId} for this showtime ${time} and this ${roomName}`)
+        return true;
+
+     }
     listShowTimes(){
         const listShowTimes = Array.from(this.showtimes.entries()).map(([time,info]) => ({
             ShowTimes: time
@@ -279,3 +380,10 @@ class Customer{
         }))
     }
 }
+
+const cinoche = new Cinema("brigite")
+
+cinoche.setRoom(1,5,8)
+cinoche.setRoom(2,4,6)
+
+console.log(cinoche.rooms)
