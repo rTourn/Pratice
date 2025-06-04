@@ -254,70 +254,118 @@ class Movie{
         return true;
 
      }
-    listShowTimes(){
-        const listShowTimes = Array.from(this.showtimes.entries()).map(([time,info]) => ({
-            ShowTimes: time
+
+     cancelSeat(customer, roomName, time, seatId){ // customer / room1 / 18h00 / A1
+        const key = `${roomName}_${time}`;
+
+        if(!this.seatingCharts.has(key)){
+            console.log(`You can't cancel your seat. Reason : No showtime at ${time} and in this ${roomName}`)
+            return false;
+        }
+
+        const chart = this.seatingCharts.get(key)
+
+        if(!chart.layout.includes(seatId)){
+            console.log(`You can't cancel this seat: ${seatId}. Reason: This seat doesn't exist on this layout`)
+            return false;
+        }
+
+        const chartId = chart.reserved.get(seatId);
+
+        if(!chartId){
+            console.log(`You can't cancel this seat. Reason: there is no reservation for this seat ${seatId}, for this showtime ${time} and ${roomName}`)
+            return false;
+        }
+
+        if(chartId.customer.name !== customer.name){
+            console.log(`You can't cancel this seat. Reason: This seat ${seatId} is already reserved by someone else`)
+            return false;
+        }
+
+        chart.reserved.delete(seatId)
+        console.log(`You have canceled this seat${seatId} for this showtime ${time} and this ${roomName}`)
+        return true;
+     }
+
+
+    listShowTimes(roomName){
+        const find = this.showings
+            .filter(room => room.roomName === roomName)
+            .map(showtime => showtime.time);
+
+        if(find.length === 0){
+            console.log(`No showtimes availables in ${roomName}`)
+            return
+        }
+
+        console.log(`Showtimes in ${roomName}: ${find.join(", ")}`)
+        
+    }
+
+    listRoom(){
+        const find = this.showings.map(room => room.roomName)
+
+        if(find.length === 0){
+            console.log(`No room availables`)
+            return
+        }
+
+        console.log(`Room available: ${find.join(", ")}`)
+        
+    }
+
+    listRoomPerShowTime(time){
+         const find = this.showings
+            .filter(showtime => showtime.time === time)
+            .map(room => room.roomName);
+
+        if(find.length === 0){
+            console.log(`No room availables for this showtime ${time}`)
+            return
+        }
+
+        console.log(`For this showtime: ${time}: ${find.join(", ")}`)
+    }
+
+    listReservations(time, roomName){
+        const key = `${roomName}_${time}`
+
+        if(!this.seatingCharts.has(key)){
+            console.log(`No showtime at ${time} and in this ${roomName}`)
+            
+            const findRoom = this.showings
+            .filter(showtime => showtime.time === time)
+            .map(room => room.roomName);
+
+            const findTime = this.showings
+            .filter(room => room.roomName === roomName)
+            .map(showtime => showtime.time);
+
+            if(findRoom.length > 0){
+                console.log(`For this showtimes: ${time} you have this room available: ${findRoom}`)
+            }
+            if(findTime.length >0){
+                console.log(`For this room: ${roomName} you have this showtimes available: ${findTime}`)
+            }
+            return
+        }
+
+        const chart = this.seatingCharts.get(key)
+        
+        const array = Array.from(chart.reserved.entries()).map(([key, customer])=> ({
+            Seat : key,
+            name : customer.name,
+            id : customer.id
         }))
 
-        console.log(`Times availables for this movie: ${this.title}`)
-        console.log(listShowTimes)
-    }
-
-    reserveSeat(customer, time){
-
-        if (!this.showtimes.includes(time)) {
-            console.log(`This time: ${time} is not available for this movie: ${this.title}`);
-            return false;
+        if(array.length === 0){
+            console.log(`No reservations for showtime ${time} in ${roomName}`);
+            return;
         }
 
-        const info = this.showtimes.get(time);
+        console.log(`Reservation list for this showtime:${time} and ${roomName}`)
+        console.table(array)
 
-        if(info.capacity === info.reservation.length){
-            console.log(`This movie: ${this.title} is already all booked`);
-            return false;
-        }
-
-        if (info.reservation.includes(customer.id)) {
-            console.log(`${customer.name} has already reserved a seat.`);
-            return false;
-        }
-
-        info.reservation.set(customer.id, { customer });
-        
-        console.log(`${customer.name} reserved a seat for "${this.title}" at ${time}`);
-        return true;
-    }
-
-    cancelReservation(customer, time){
-        if (!this.showtimes.includes(time)) {
-            console.log(`This time: ${time} is not available for this movie: ${this.title}`);
-            return false;
-        }
-
-        const info = this.showtimes.get(time);
-
-        if (!info.reservation.includes(customer.id)) {
-            console.log(`${customer.name} hasn't reserved a seat for this movie: ${this.title} and this time: ${time}.`);
-            return false;
-        }
-
-        info.reservation.delete(customer.id)
-        console.log(`${customer.name}'s reservation has been cancelled.`)
-        return true;
-        
-    }
-
-    listReservations(time){
-        const info = this.showtimes.get(time);
-        const reservationList = Array.from(info.reservation.entries()).map(([capacity, reservation])=> ({
-                Name: reservation.customer.name,
-                ID: reservation.customer.id
-            }))
-        
-        console.log(`Reservations for ${this.title} and time ${time}`)
-        console.table(reservationList)
-        
-    
     }
 }
 
