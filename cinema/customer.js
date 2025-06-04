@@ -15,7 +15,7 @@ class Customer{
     constructor(name){
         this.id = generateId()
         this.name = name;
-        this.reservations = new Map();
+        this.reservations = new Map(); // movie.id { movie, time}
         this.cinema = undefined;
     }
 
@@ -68,6 +68,26 @@ class Customer{
             Name: info.movie.title,
             showtime: info.time
         }))
+    }
+
+    rateMovie(movie, score){
+        if (!movie || !movie.id) {
+        console.error("Invalid movie object.");
+        return false;
+        }
+
+        if(!this.reservations.has(movie.id)){
+            console.log(`You can't rate a movie that you haven't seen`)
+            return false;
+        }
+
+        if (typeof score !== "number" || score < 1 || score > 5) {
+        console.log("Score must be a number between 1 and 5.");
+        return false;
+    }
+        movie.rateMovie(score)
+        console.log(`You rated ${movie.title} with a score of ${score}.`);
+        return true;
     }
 }
 

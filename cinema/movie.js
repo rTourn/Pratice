@@ -20,6 +20,7 @@ class Movie{
         this.showings = []; // {time, roomName}
         this.seatingCharts = new Map() // Key: `${roomName}_${time}`, Value: { layout: [], reserved: Map(seat => customer) }
         this.cinema = undefined;
+        this.rating = [];
         
     }
 
@@ -197,6 +198,25 @@ class Movie{
         console.log(`Reservation list for this showtime:${time} and ${roomName}`)
         console.table(array)
 
+    }
+
+    ratemovie(score){
+        if(typeof score !== "number" || score < 0 || score > 5){
+            console.log(`You score need to be between or equal to 5 and 0`)
+        }
+
+        this.rating.push(score)
+        
+    }
+
+    getAverageRating(){
+        if(this.rating.length === 0){
+            console.log(`No rating yet`)
+            return
+        }
+
+        const average = (this.rating.reduce((a,b)=> a +b, 0)) / this.rating.length
+        console.log(`Average rating : ${average.toFixed(2)}`)
     }
 }
 

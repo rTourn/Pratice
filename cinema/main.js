@@ -1,6 +1,6 @@
-const { Cinema } = require('./cinema.js');
-const { Movie } = require('./movie.js');
-const { Customer } = require('./customer.js')
+import { Cinema } from './cinema.js';
+import { Movie } from ('./movie.js');
+import { Customer } from ('./customer.js')
 
 const grandRex = new Cinema("GrandRex")
 grandRex.setRoom(1,5,8)
