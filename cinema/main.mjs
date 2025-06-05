@@ -1,6 +1,6 @@
-import { Cinema } from './cinema.js';
-import { Movie } from ('./movie.js');
-import { Customer } from ('./customer.js')
+import { Cinema } from './cinema.mjs';
+import { Movie } from './movie.mjs';
+import { Customer } from './customer.mjs'
 
 const grandRex = new Cinema("GrandRex")
 grandRex.setRoom(1,5,8)
