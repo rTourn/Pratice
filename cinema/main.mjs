@@ -1,5 +1,6 @@
 import { Cinema } from './cinema.mjs';
 import { Movie } from './movie.mjs';
+
 import { Customer } from './customer.mjs'
 
 const grandRex = new Cinema("GrandRex")

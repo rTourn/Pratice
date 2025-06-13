@@ -126,45 +126,7 @@ class Customer{
         return true;
     }
 
-   toJSON() {
-        return {
-            id: this.id,
-            name: this.name,
-            point: this.point,
-            reservedList: this.reservedList,
-            reservations: Array.from(this.reservations.entries()).map(([key, val]) => ({
-                key,
-                movieId: val.movie.id,
-                movieTitle: val.movie.title,
-                time: val.time,
-                seatId: val.seatId,
-                roomName: val.roomName
-            }))
-        };
-    }
-    static fromJSON(json, cinema, moviesById) {
-    const customer = new Customer(json.name);
-    customer.id = json.id;
-    customer.point = json.point;
-    customer.cinema = cinema;
-    customer.reservedList = json.reservedList;
-
-    // Restore reservation map
-    customer.reservations = new Map();
-        for (const res of json.reservations) {
-            const movie = moviesById[res.movieId];
-            if (movie) {
-                customer.reservations.set(res.key, {
-                    movie,
-                    time: res.time,
-                    seatId: res.seatId,
-                    roomName: res.roomName
-                });
-            }
-        }
-
-        return customer;
-    }
+   
 }
 
 export {Customer}
