@@ -207,6 +207,40 @@ class Movie{
         const average = (this.rating.reduce((a,b)=> a +b, 0)) / this.rating.length
         console.log(`Average rating : ${average.toFixed(2)}`)
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            title: this.title,
+            duration: this.duration,
+            showings: this.showings,
+            seatingCharts: Array.from(this.seatingCharts.entries()).map(([key, value]) => ({
+                key,
+                layout: value.layout,
+                reserved: Array.from(value.reserved.entries())
+            })),
+            rating: this.rating
+        };
+    }
+
+    static fromJSON(data) {
+        const movie = new Movie(data.title, data.duration);
+        movie.id = data.id;
+        movie.showings = data.showings;
+        movie.rating = data.rating;
+
+        movie.seatingCharts = new Map(
+            data.seatingCharts.map(({ key, layout, reserved }) => [
+                key,
+                {
+                    layout,
+                    reserved: new Map(reserved)
+                }
+            ])
+        );
+
+        return movie;
+    }
 }
 
 export { Movie }
